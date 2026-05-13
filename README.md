@@ -432,20 +432,6 @@ Current limitations include:
 
 ---
 
-# 21. Future Work
-
-Possible future improvements include:
-
-- larger APK datasets
-- hybrid static + dynamic analysis
-- PCAP traffic analysis
-- cloud-based sandbox execution
-- graph neural networks
-- transformer-based sequence modeling
-- improved behavioral sequence analysis
-
----
-
 # 22. Project Structure
 
 ```text
