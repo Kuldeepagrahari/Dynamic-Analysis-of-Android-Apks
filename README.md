@@ -1,169 +1,484 @@
-# **Android Dynamic Analysis Pipeline Using Frida**
+# Android Dynamic Malware Analysis Framework Using Frida and Machine Learning
 
 ---
 
-## **1. Introduction**
+# 1. Introduction
 
-This project presents a dynamic analysis pipeline for Android applications (APKs) using runtime instrumentation. The system executes APKs inside an Android emulator and captures their behavioral patterns in real time using Frida.
+Android malware has become increasingly sophisticated due to code obfuscation, encryption, dynamic loading, and runtime evasion techniques. Traditional static analysis methods often fail to detect such applications because they rely heavily on predefined signatures and decompiled code structures.
 
-Unlike traditional approaches, this pipeline does not rely on predefined features. Instead, it records raw execution events and stores them in structured JSON format, enabling flexible and unbiased post-analysis.
+This project presents a complete Android dynamic malware analysis framework that performs runtime behavioral monitoring of Android applications (APKs) using Frida-based instrumentation. Instead of relying on predefined features initially, the system captures raw runtime behavior during application execution and later performs independent feature engineering for machine learning-based malware classification.
 
----
+The framework supports:
 
-## **2. Objective**
-
-The primary objective of this system is to:
-
-* Perform dynamic analysis of Android applications
-* Capture runtime behavior without predefined feature engineering
-* Generate structured JSON datasets for further analysis or machine learning
-
----
-
-## **3. System Requirements**
-
-The following software components are required:
-
-### **3.1 Java (JDK 17 or higher)**
-
-* Required for Android development tools
-* Must be properly installed and configured
-
-### **3.2 Android Studio**
-
-Must include:
-
-* Android SDK
-* Android SDK Platform-Tools
-* Android Emulator
-
-### **3.3 Python (Version 3.10 or higher)**
-
-* Used for automation scripts
-* Must be added to system PATH
-
-### **3.4 Frida Tools**
-
-Install using:
-
-```
-pip install frida-tools
-```
+- Automated APK execution
+- Runtime instrumentation
+- Behavioral log collection
+- JSON dataset generation
+- Feature engineering
+- Machine learning classification
 
 ---
 
-## **4. Environment Configuration**
+# 2. Research Motivation
 
-### **4.1 Set JAVA_HOME**
+Most traditional Android malware detection systems rely on:
 
-```
-JAVA_HOME = C:\Program Files\Eclipse Adoptium\jdk-17.x.x
+- static permissions
+- predefined API signatures
+- handcrafted feature sets
+
+However, modern Android malware frequently:
+
+- uses obfuscation
+- hides malicious logic dynamically
+- activates behavior only during runtime
+- bypasses static analysis
+
+To address these limitations, this project follows a dynamic behavior-first methodology:
+
+```text
+Raw Runtime Behavior
+→ Behavioral JSON Logs
+→ Feature Engineering
+→ Machine Learning
 ```
 
-Add to PATH:
+Instead of defining features before execution, the framework first captures complete runtime activity and performs feature extraction afterward.
 
-```
-%JAVA_HOME%\bin
-```
+This preserves richer behavioral information and allows flexible future experimentation.
 
 ---
 
-### **4.2 Configure Android SDK Paths**
+# 3. System Architecture
 
-Add the following directories to system PATH:
+The complete pipeline architecture is shown below:
 
-```
-C:\Users\<user>\AppData\Local\Android\Sdk\platform-tools
-C:\Users\<user>\AppData\Local\Android\Sdk\build-tools\<latest-version>
+```text
+APK Dataset
+      ↓
+Android Emulator
+      ↓
+Frida Runtime Instrumentation
+      ↓
+Behavioral Event Logs
+      ↓
+JSON Dataset Generation
+      ↓
+Feature Engineering Pipeline
+      ↓
+ML-ready Feature Dataset
+      ↓
+Machine Learning Model
+      ↓
+Malware / Benign Classification
 ```
 
 ---
 
-### **4.3 Verification Commands**
+# 4. Technology Stack
 
-Run the following commands to verify setup:
+| Tool / Framework        | Purpose                   |
+| ----------------------- | ------------------------- |
+| Android Studio Emulator | APK execution environment |
+| ADB                     | Emulator communication    |
+| AAPT                    | APK metadata extraction   |
+| Frida                   | Runtime instrumentation   |
+| Python                  | Automation pipeline       |
+| Pandas                  | Feature engineering       |
+| Scikit-learn            | Machine learning          |
+| NumPy                   | Numerical processing      |
+| JSON                    | Behavioral data storage   |
 
-```
-adb version
-aapt version
-frida --version
+---
+
+# 5. System Requirements
+
+## Software Requirements
+
+- Java JDK 17+
+- Android Studio
+- Android SDK Platform Tools
+- Python 3.10+
+- Frida Tools
+- Windows 10/11
+
+---
+
+# 6. Emulator Configuration
+
+Recommended emulator configuration:
+
+| Component        | Configuration     |
+| ---------------- | ----------------- |
+| Device           | Pixel 4 / Pixel 5 |
+| Android Version  | API 30            |
+| Architecture     | x86_64            |
+| RAM              | 2048 MB           |
+| Internal Storage | 6 GB              |
+| Expanded Storage | 512 MB            |
+
+---
+
+# 7. Dynamic Instrumentation Using Frida
+
+Frida is used to dynamically hook Android APIs during application execution.
+
+Custom JavaScript hooks are injected into APK processes at runtime to capture behavioral events.
+
+---
+
+# 8. Runtime Behaviors Captured
+
+The framework captures multiple categories of runtime behavior.
+
+## 8.1 File System Activity
+
+Examples:
+
+- internal storage access
+- file creation
+- system library access
+
+Captured using:
+
+- java.io.File hooks
+
+---
+
+## 8.2 Network Activity
+
+Examples:
+
+- HTTP requests
+- suspicious URLs
+- API communication
+- WebView traffic
+
+Captured using:
+
+- java.net.URL
+- WebView hooks
+
+---
+
+## 8.3 Shared Preferences
+
+Examples:
+
+- registration IDs
+- tokens
+- application settings
+
+Captured using:
+
+- SharedPreferences hooks
+
+---
+
+## 8.4 Device and Settings Access
+
+Examples:
+
+- android_id access
+- device fingerprinting attempts
+
+Captured using:
+
+- Settings.Secure hooks
+
+---
+
+## 8.5 Runtime Execution
+
+Examples:
+
+- subprocess execution
+- runtime commands
+- dynamic behavior triggers
+
+Captured using:
+
+- Runtime.exec
+- ProcessBuilder
+
+---
+
+# 9. APK Execution Pipeline
+
+For every APK:
+
+1. Package name extracted using AAPT
+2. APK installed using ADB
+3. Frida hooks injected dynamically
+4. Monkey events trigger application behavior
+5. Runtime events captured
+6. Logs converted into structured JSON
+7. APK uninstalled automatically
+
+---
+
+# 10. Behavioral JSON Dataset
+
+Captured runtime events are stored as structured JSON logs.
+
+Example:
+
+```json
+[
+  {
+    "ts": 1711111111111,
+    "type": "network",
+    "data": {
+      "url": "http://example.com"
+    }
+  },
+  {
+    "ts": 1711111112222,
+    "type": "file",
+    "data": {
+      "path": "/data/user/0/app/"
+    }
+  }
+]
 ```
 
 ---
 
-## **5. Android Emulator Setup**
+# 11. Feature Engineering Pipeline
 
-### **5.1 Create Virtual Device**
+The generated JSON logs are processed into ML-ready feature vectors.
 
-1. Open Android Studio
-2. Navigate to **Virtual Device Manager**
-3. Create a new device with the following configuration:
+The framework extracts:
 
-   * Device: Pixel 5
-   * System Image: API 30–33 (x86_64 architecture)
+- statistical features
+- temporal features
+- behavioral count features
+- sequence features
+- suspicious behavioral indicators
 
 ---
 
-### **5.2 Start Emulator**
+# 12. Extracted Features
 
-Launch the emulator and verify:
+## 12.1 Statistical Features
 
+| Feature        | Description                  |
+| -------------- | ---------------------------- |
+| num_events     | Total runtime events         |
+| duration       | Runtime duration             |
+| event_density  | Events per unit time         |
+| ts_std         | Timestamp standard deviation |
+| ts_entropy     | Temporal entropy             |
+
+---
+
+## 12.2 Behavioral Count Features
+
+| Feature        | Description              |
+| -------------- | ------------------------ |
+| count_network  | Network-related events   |
+| count_file     | File-related events      |
+| count_process  | Process creation events  |
+| count_runtime  | Runtime execution events |
+| count_crypto   | Cryptographic API usage  |
+
+---
+
+## 12.3 Network Features
+
+| Feature                | Description              |
+| ---------------------- | ------------------------ |
+| unique_domains         | Number of unique domains |
+| suspicious_url_count   | Suspicious URL count     |
+| network_ratio          | Network activity ratio   |
+
+---
+
+## 12.4 File Features
+
+| Feature                 | Description                    |
+| ----------------------- | ------------------------------ |
+| num_file_access         | File access count              |
+| suspicious_file_count   | Suspicious file activity       |
+| file_write_heavy        | Heavy write behavior indicator |
+
+---
+
+## 12.5 Sequence Features
+
+| Feature                    | Description                  |
+| -------------------------- | ---------------------------- |
+| unique_activity_bigrams    | Activity transition patterns |
+| activity_sequence_length   | Behavioral sequence length   |
+
+---
+
+## 12.6 Suspicious Behavioral Indicators
+
+| Feature                | Description                          |
+| ---------------------- | ------------------------------------ |
+| dynamic_code_loading   | Dynamic loading indicator            |
+| webview_activity       | WebView activity                     |
+| device_fingerprinting  | Device information access            |
+| suspicious_score       | Aggregated suspicious behavior score |
+
+---
+
+# 13. Machine Learning Pipeline
+
+After feature engineering:
+
+1. Feature preprocessing performed
+2. Dataset split into train/test sets
+3. Multiple ML models evaluated
+4. Best-performing classifier selected
+
+---
+
+# 14. Algorithms Evaluated
+
+The following machine learning algorithms were evaluated on the generated behavioral feature dataset:
+
+| Algorithm | Purpose |
+|---|---|
+| Random Forest | Ensemble-based baseline classifier |
+| XGBoost | Gradient boosting classifier |
+| LightGBM | Efficient boosting-based classifier |
+| Stacking Ensemble | Combined ensemble of RF + XGBoost + LightGBM |
+
+---
+
+# 15. Experimental Dataset
+
+| Category | Number of Samples |
+|---|---|
+| Malware Samples | 182 |
+| Benign Samples | 116 |
+| Total JSON Files | 298 |
+
+---
+
+# 16. Experimental Results
+
+| Model | Accuracy | Precision | Recall | F1 Score | ROC-AUC |
+|---|---|---|---|---|---|
+| Random Forest | 86.67% | 96.77% | 81.08% | 88.24% | 93.77% |
+| Random Forest + SMOTE | 88.33% | 100.00% | 81.08% | 89.55% | 92.71% |
+| Stacking Ensemble | 80.00% | 85.71% | 81.08% | 83.33% | 88.60% |
+
+## Best Performing Model
+
+```text
+Random Forest + SMOTE
+Accuracy: 88.33%
+F1 Score: 89.55%
+ROC-AUC: 92.71%
 ```
+
+The results demonstrate that dynamic runtime behavioral features extracted using Frida-based instrumentation are effective for Android malware classification even with a relatively small dataset size.
+
+---
+
+# 17. Key Contributions
+
+The major contributions of this work include:
+
+- Dynamic runtime behavioral analysis of Android APKs
+- Custom Frida-based instrumentation pipeline
+- Raw runtime event collection without predefined features
+- Independent behavioral feature-engineering framework
+- ML-ready behavioral dataset generation
+- Automated APK processing pipeline
+- Comparative evaluation of multiple ML classifiers
+- Behavioral malware detection using engineered runtime features
+
+---
+
+# 18. Comparison With Traditional Approaches
+
+| Traditional Systems            | Proposed Framework         |
+| ------------------------------ | -------------------------- |
+| Predefined static features     | Raw runtime behavior       |
+| Permission-heavy analysis      | Behavioral analysis        |
+| Static APK inspection          | Dynamic instrumentation    |
+| Limited runtime coverage       | Flexible behavioral hooks  |
+| Framework-dependent extraction | Custom feature engineering |
+
+---
+
+# 19. Challenges Faced
+
+During implementation, several practical challenges were encountered:
+
+- Emulator instability
+- APK crashes
+- Frida compatibility issues
+- Runtime behavior inconsistency
+- Noise in dynamic logs
+- Resource limitations
+- Storage management for emulator images
+
+---
+
+# 20. Limitations
+
+Current limitations include:
+
+- relatively small dataset size
+- dynamic behavior variability
+- limited runtime interaction coverage
+- lack of network packet capture (PCAP)
+- execution time constraints
+
+---
+
+# 21. Future Work
+
+Possible future improvements include:
+
+- larger APK datasets
+- hybrid static + dynamic analysis
+- PCAP traffic analysis
+- cloud-based sandbox execution
+- graph neural networks
+- transformer-based sequence modeling
+- improved behavioral sequence analysis
+
+---
+
+# 22. Project Structure
+
+```text
+project/
+ ├── input/
+ │    ├── malware/
+ │    └── benign/
+ ├── dataset/
+ ├── features/
+ ├── models/
+ ├── script.js
+ ├── parser.py
+ ├── runner.py
+ ├── feature_engineering.py
+ ├── train_model.py
+ └── README.md
+```
+
+---
+
+# 23. Pipeline Execution
+
+## Step 1 — Start Emulator
+
+```bash
 adb devices
 ```
 
-Expected output:
-
-```
-emulator-5554   device
-```
-
 ---
 
-## **6. Frida Server Setup**
+## Step 2 — Start Frida Server
 
-### **6.1 Download Frida Server**
-
-Download from:
-
-[https://github.com/frida/frida/releases](https://github.com/frida/frida/releases)
-
-Select:
-
-```
-frida-server-<matching-version>-android-x86_64.xz
-```
-
-Version must match:
-
-```
-frida --version
-```
-
----
-
-### **6.2 Extract and Prepare**
-
-* Extract using 7-Zip
-* Rename file to:
-
-```
-frida-server
-```
-
----
-
-### **6.3 Push to Emulator**
-
-```
-adb push frida-server /data/local/tmp/
-```
-
----
-
-### **6.4 Start Frida Server**
-
-```
+```bash
 adb shell
 su
 chmod 755 /data/local/tmp/frida-server
@@ -172,166 +487,40 @@ chmod 755 /data/local/tmp/frida-server
 
 ---
 
-### **6.5 Verify Connection**
+## Step 3 — Verify Frida Connection
 
-```
-frida-ps -U
-```
-
-A list of running processes should appear.
-
----
-
-## **7. Project Structure**
-
-The project must follow this directory layout:
-
-```
-project/
- ├── input/
- │    ├── malware/
- │    └── benign/
- ├── dataset/
- ├── script.js
- ├── parser.py
- ├── runner.py
-```
-
----
-
-## **8. Pipeline Execution**
-
-### **Step 1: Start Emulator**
-
-```
-adb devices
-```
-
----
-
-### **Step 2: Start Frida Server**
-
-```
-adb shell
-su
-/data/local/tmp/frida-server &
-```
-
-If the following message appears:
-
-```
-Address already in use
-```
-
-It indicates the server is already running and can be ignored.
-
----
-
-### **Step 3: Verify Frida**
-
-```
+```bash
 frida-ps -U
 ```
 
 ---
 
-### **Step 4: Navigate to Project Directory**
+## Step 4 — Run Dynamic Analysis Pipeline
 
-```
-cd C:\Users\<user>\Downloads\project
-```
-
----
-
-### **Step 5: Execute Pipeline**
-
-```
+```bash
 python -u runner.py
 ```
 
 ---
 
-## **9. Internal Workflow**
+## Step 5 — Generate Features
 
-For each APK, the pipeline performs:
-
-1. Extract package name using `aapt`
-2. Install APK using `adb`
-3. Inject Frida script
-4. Trigger application behavior
-5. Capture runtime logs
-6. Convert logs to JSON format
-7. Store results in dataset directory
-8. Uninstall application
-
----
-
-## **10. Output**
-
-Generated JSON files are stored in:
-
-```
-project/dataset/
-```
-
-### **Example Output**
-
-```
-[
-  {
-    "type": "network",
-    "data": {
-      "url": "http://example.com"
-    }
-  }
-]
+```bash
+python feature_engineering.py
 ```
 
 ---
 
-## **11. Common Issues and Solutions**
+## Step 6 — Train ML Model
 
-| Issue                     | Solution                                |
-| ------------------------- | --------------------------------------- |
-| `adb not recognized`      | Add platform-tools to PATH              |
-| `aapt not working`        | Add build-tools to PATH                 |
-| `frida-ps -U not working` | Restart emulator and frida-server       |
-| `Package not found`       | Verify APK using `aapt dump badging`    |
-| Empty JSON output         | Increase execution time and interaction |
-| Emulator slow             | Restart or wipe data                    |
-
----
-
-## **12. Important Notes**
-
-* Frida server must be restarted after every emulator restart
-* Always verify connection using `frida-ps -U` before running pipeline
-* Execute APKs in small batches initially
-* Ensure APK files are valid before processing
-* Longer execution time improves behavior capture
-
----
-
-## **13. Final Checklist**
-
-Before execution, ensure:
-
-* Emulator is running
-* ADB is functioning correctly
-* Frida server is active
-* Frida connection is verified
-* Project structure is correct
-
----
-
-## **14. Execution Command**
-
-```
-python -u runner.py
+```bash
+python train_model.py
 ```
 
 ---
 
-## **15. Conclusion**
+# 24. Conclusion
 
-This pipeline provides a structured and automated approach to Android dynamic analysis by capturing real-time behavioral data and storing it in a reusable format. The system is scalable, modular, and suitable for further analysis and machine learning applications.
+This project presents a complete Android dynamic malware analysis framework using Frida-based runtime instrumentation and machine learning.
+
+Unlike traditional predefined-feature approaches, the system captures raw runtime behavior first and performs flexible feature engineering later. The framework successfully generates behavioral datasets suitable for machine learning-based malware classification and demonstrates the effectiveness of dynamic behavioral analysis for Android security research.
